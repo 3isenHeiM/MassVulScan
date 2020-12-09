@@ -30,11 +30,15 @@ The main steps of the script:
 3) The result (file) is sorted to gather all ports to be scanned by host
 4) Identification of services (nmap), multiple sessions in parallel, one session per host
 5) Display of (potentially) vulnerable hosts on the screen at the end of the script
-6) Generation of two reports: a global HTML report will be created containing all the details for each of the hosts, vulnerable or not and a TXT file allowing to focus on hosts (potentially) vulnerable with the details
+6) Generation of two reports:
+   - a global HTML report will be created containing all the details for each of the hosts, vulnerable or not
+   - a TXT file allowing to focus on hosts (potentially) vulnerable with the details
 
 The HTML report uses a bootstrap style sheet (https://github.com/honze-net/nmap-bootstrap-xsl) for more convenience.
+
 # How to use it?
-All you have to do is indicate the file (-f | --include-file) containing a list of networks, IP or hostnames (version 1.9.0) to scan:
+All you have to do is indicate the file (``-f | --include-file``) containing a list of networks, IP or hostnames (version 1.9.0) to scan:
+
 ```
 git clone https://github.com/choupit0/MassVulScan.git
 cd MassVulScan
@@ -51,9 +55,10 @@ List of available parameters/arguments:
 -k (keep files) = optional parameter to keep all the IPs scanned in 2 files (with and without ports)
 -ns (no Nmap scan) = optional parameter to detect the hosts with open ports only
 ```
-By default the script will scan only the first 1000 TCP/UDP ports among the most common ports. You can find the list here: /usr/local/share/nmap/nmap-services. Similarly, the rate or number of packets per second is set to 2500 by default.
+By default, the script will scan only the  **100 most common TCP/UDP ports**. You can find the list here: ``/usr/local/share/nmap/nmap-services``. Similarly, the rate or number of packets per second is set to 2500 by default.
 
-For the format of the files, you will find two examples in the dedicated directory:
+For the format of the files, you will find two examples in the dedicated directory.
+The tool support single hosts as well as CIDR notation :
 ```
 root@ubuntu:~/audit/MassVulScan# cat example/hosts.txt
 # Private subnet
@@ -63,7 +68,8 @@ root@ubuntu:~/audit/MassVulScan# cat example/exclude.txt
 # Gateway
 192.168.2.254
 ```
-**Note that the script will detect along the way if you are using multiple network interfaces. This is important for Masscan, which will always default to the interface that has the default route. You will be asked to choose one (no problem with Nmap).**
+**Note that the script will detect along the way if you are using multiple network interfaces.** This is important for Masscan, which will always default to the interface that has the default route. You will be asked to choose one (no problem with Nmap).
+
 # GIF Demo
 ![Example Demo](demo/MassVulScan_Demo.gif)
 # Some screenshots
