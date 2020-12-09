@@ -1,18 +1,18 @@
 #!/bin/bash
 
 #############################################################################################################################
-# 
+#
 # Script Name    : MassVulScan.sh
 # Description    : This script combines the high processing speed to find open ports (MassScan), the effectiveness
-#                  to identify open services versions and find potential CVE vulnerabilities (Nmap + vulners.nse script).
+#                  to identify open services versions (Nmap).
 #                  A beautiful report (nmap-bootstrap.xsl) is generated containing all hosts found with open ports,
 #                  and finally a text file including specifically the potential vulnerables hosts is created.
-# Author         : https://github.com/choupit0
+# Author         : https://github.com/3isenHeiM
 # Site           : https://hack2know.how/
 # Date           : 20200219
 # Version        : 1.9.0
 # Usage          : ./MassVulScan.sh [[-f file] + [-e file] [-i] [-a] [-c] [-k] [-ns] | [-h] [-v]]
-# Prerequisites  : Install MassScan (>=1.0.5), Nmap and vulners.nse (nmap script) to use this script.
+# Prerequisites  : Install MassScan (>=1.0.5) & Nmap to use this script.
 #                  Xsltproc package is also necessary.
 #                  Please, read the file "requirements.txt" if you need some help.
 #                  With a popular OS from Debian OS family (e.g. Debian, Ubuntu, Linux Mint or Elementary),
@@ -77,7 +77,7 @@ fi
 }
 
 # Checking prerequisites
-if [[ ! $(which masscan) ]] || [[ ! $(which nmap) ]] || [[ ! $(locate vulners.nse) ]] || [[ ! $(which xsltproc) ]]; then
+if [[ ! $(which masscan) ]] || [[ ! $(which nmap) ]] || [[ ! $(which xsltproc) ]]; then
 	echo -e "${red_color}[X] There are some prerequisites to install before to launch this script.${end_color}"
 	echo -e "${yellow_color}[I] Please, read the help file \"requirements.txt\" for installation instructions (Debian/Ubuntu):${end_color}"
 	echo "$(grep ^-- "requirements.txt")"
@@ -332,121 +332,29 @@ if [[ -s hosts_converted.txt ]]; then
 				printf("%s %s\n%s", value[j], ips_list[value[j]], (j == i) ? "" : "\n") } }' | sed '/^$/d' | sed 's/.$//' > file_with_IPs_unsorted.txt
 fi
 
+hosts_sorted_filename="${hosts%.*}"
+hosts_sorted_extension="${hosts##*.}"
+hosts_sorted="${hosts_sorted_filename}_sorted.${hosts_sorted_extension}"
+
 if [[ -s file_with_IPs_unsorted.txt ]]; then
 	echo -e "${bold_color}$(cat file_with_IPs_unsorted.txt)${end_color}"
-	cut -d" " -f1 file_with_IPs_unsorted.txt | sort -u | sort -t . -n -k1,1 -k2,2 -k3,3 -k4,4 > ${hosts}_sorted
+	cut -d" " -f1 file_with_IPs_unsorted.txt | sort -u | sort -t . -n -k1,1 -k2,2 -k3,3 -k4,4 > ${hosts_sorted}
 else
         echo -n -e "${blue_color}${bold_color}\rOnly IPs has been detected in the input file.\n${end_color}"
-	cut -d" " -f1 ${hosts} | sort -u | sort -t . -n -k1,1 -k2,2 -k3,3 -k4,4 > ${hosts}_sorted
+	cut -d" " -f1 ${hosts} | sort -u | sort -t . -n -k1,1 -k2,2 -k3,3 -k4,4 > ${hosts_sorted}
 fi
 
-hosts="${hosts}_sorted"	
+hosts="${hosts_sorted}"
 
 # Interactive mode "on" or "off"?
 top_ports_tcp="$(grep -v ^"#" sources/top-ports-tcp-1000.txt)"
 top_ports_udp="$(grep -v ^"#" sources/top-ports-udp-1000.txt)"
 
-if [[ ${interactive} = "on" ]] && [[ ${all_ports} = "on" ]]; then
-        echo -e "${red_color}Sorry, but you can't chose interactive mode (-i) with all ports scanning mode (-a).${end_color}"
-	exit 1
-elif [[ ${all_ports} = "on" ]]; then
-        echo -e "${yellow_color}[I] Okay, 65535 ports to be scan both on TCP and UDP.${ports}${end_color}"
-	ports="-p1-65535,U:1-65535"
-	rate="5000"
-	script="vulners"
-elif [[ ${interactive} = "on" ]]; then
-        echo -e "${yellow_color}[I] We will use the input file: ${hosts}${end_color}"
-        # Ports to scan?
-        echo -e "${blue_color}${bold_color}Now, which TCP/UDP port(s) do you want to scan?${end_color}"
-        echo -e "${blue_color}[default: --top-ports 1000 (TCP/UDP), just typing \"Enter|Return\" key to continue]?${end_color}"
-        echo "(\"Top ports\" from list: /usr/local/share/nmap/nmap-services)"
-        echo -e "${blue_color}Usage example:${end_color}"
-        echo "  -p20-25,80                      to scan TCP ports in the range 20-25 and port 80"
-        echo "  -p20-25,80 --exclude-ports 26   same thing as before and remove a port in the range"
-        echo "  -p1-100,U:1-100                 to scan TCP and UDP range of ports"
-        echo "  -pU:1-100                       to scan only UDP range of ports"
-        echo "  -p1-65535,U:1-65535             all TCP AND UDP ports"
-        read -p "Port(s) to scan? >> " -r -t 60 ports_list
-                if [[ -z ${ports_list} ]];then
-			source_file_top
-                        ports="-p${top_ports_tcp},U:${top_ports_udp}"
-			echo -e "${yellow_color}[I] Default parameter: --top-ports 1000 (TCP/UDP).${end_color}"
-                        else
-                                ports=${ports_list}
-				echo -e "${yellow_color}[I] Port(s) to scan: ${ports}${end_color}"
-                fi
-        # Which rate?
-        echo -e "${blue_color}${bold_color}Which rate (pkts/sec)?${end_color}"
-        echo -e "${blue_color}[default: --max-rate 2500, just typing \"Enter|Return\" key to continue]${end_color}"
-        echo -e "${red_color}Be carreful, beyond \"10000\" it coud be dangerous for your network!!!${end_color}"
-        read -p "Rate? >> " -r -t 60 max_rate
-                if [[ -z ${max_rate} ]];then
-                        rate="2500"
-			echo -e "${yellow_color}[I] Default parameter: --max-rate 2500.${end_color}"
-                        else
-                                rate=${max_rate}
-				echo -e "${yellow_color}[I] Rate chosen: ${rate}${end_color}"
-                fi
+source_file_top
+ports="-p${top_ports_tcp},U:${top_ports_udp}"
+rate="2500"
+echo -e "${yellow_color}[I] Default parameters: --top-ports 100 (TCP/UDP) and --max-rate 2500.${end_color}"
 
-		# Which script?
-	
-	if [[ ${no_nmap_scan} != "on" ]]; then
-		locate_scripts="$(locate vulners.nse | grep "/nmap/scripts/vulners.nse" | sed 's/vulners.nse//')"
-		scripts_list="$(ls ${locate_scripts}*.nse 2>/dev/null)"
-
-		# Verifying is Nmap folder scripts is present
-		if [[ $? != "0" ]]; then
-			echo -e "${red_color}[X] The Nmap folder does not exist or is empty (e.g. /usr/local/share/nmap/scripts/*.nse).${end_color}"
-			echo -e "${yellow_color}[I] This script can install the prerequisites for you: ${source_installation}${end_color}"
-			echo "Please, download the source from Github and try again: git clone https://github.com/choupit0/MassVulScan.git"
-		exit 1
-		fi
-
-		scripts_tab=(${scripts_list})
-		scripts_loop="$(for index in "${!scripts_tab[@]}"; do echo "${index}) ${scripts_tab[${index}]}"; done)"
-		echo -e "${blue_color}${scripts_loop}${end_color}"
-		echo -e "${blue_color}${bold_color}Which Nmap Scripting Engine (NSE) to use?${end_color}"
-		echo -e "${blue_color}[choose the corresponding number to the script name]${end_color}"
-		echo -e "${blue_color}[or type the script name and args (e.g. ${bold_color}vulners --script-args mincvss=5)]${end_color}"
-		echo -e "${blue_color}${bold_color}Or typing \"Enter|Return\" key to use the default on: vulners.nse${end_color}"
-		read -p "Script number? >> " -r -t 60 script_number
-	
-			case "${script_number}" in
-				[0-9]* )
-					script="${scripts_tab[${script_number}]}"
-					echo -e "${yellow_color}[I] Script name chosen: ${script}${end_color}"
-					;;
-				'' )
-					script="vulners"
-					echo -e "${yellow_color}[I] No script chosen, we will use the default one (vulners.nse).${end_color}"
-					;;
-				* )
-					script=${script_number}
-					echo -e "${yellow_color}[I] Script name and args chosen: ${script}${end_color}"
-					;;
-			esac
-			
-			# For bad numbers
-			if [[ -z ${script} ]]; then
-				echo -e "${red_color}[X] Please, choose the right number or the right categorie name.${end_color}"
-				exit 1
-			fi
-	fi
-
-        else
-		if [[ ${no_nmap_scan} != "on" ]]; then	
-			source_file_top
-			ports="-p${top_ports_tcp},U:${top_ports_udp}"
-			rate="2500"
-			script="vulners"
-			echo -e "${yellow_color}[I] Default parameters: --top-ports 1000 (TCP/UDP), --max-rate 2500 and Vulners script (NSE).${end_color}"
-		else
-			source_file_top
-			ports="-p${top_ports_tcp},U:${top_ports_udp}"
-			rate="2500"
-			echo -e "${yellow_color}[I] Default parameters: --top-ports 1000 (TCP/UDP) and --max-rate 2500 (no Nmap Scan).${end_color}"
-		fi
-fi
 
 ################################################
 # Checking if there are more than 2 interfaces #
@@ -597,17 +505,6 @@ fi
 sort -t . -n -k1,1 -k2,2 -k3,3 -k4,4 nmap-input.temp.txt > nmap-input.txt
 
 if [[ ${no_nmap_scan} != "on" ]]; then
-	# If we are using Vulners.nse script, check if vulners.com site is reachable
-	if [[ ${script} == "vulners" ]]; then
-		check_vulners_api_status="$(nc -z -v -w 1 vulners.com 443 2>&1 | grep -oE '(succeeded!$|open$)' | sed 's/^succeeded!/open/')"
-
-		if [[ ${check_vulners_api_status} == "open" ]]; then
-			echo -e "${yellow_color}[I] Vulners.com site is reachable on port 443.${end_color}"
-			else
-				echo -e "${blue_color}${bold_color}Warning: Vulners.com site is NOT reachable on port 443. Please, check your firewall rules, dns configuration and your Internet link.${end_color}"
-				echo -e "${blue_color}${bold_color}So, vulnerability check will be not possible, only opened ports will be present in the report.${end_color}"
-		fi
-	fi
 
 	nb_nmap_process="$(sort -n nmap-input.txt | wc -l)"
 
@@ -676,35 +573,8 @@ if [[ ${no_nmap_scan} != "on" ]]; then
 
 	sleep 2 && tset
 
-	echo -e "${green_color}[V] Nmap phase is ended.${end_color}"
+	echo -e "\n${green_color}[V] Nmap phase is ended.${end_color}"
 
-	# Verifying vulnerable hosts
-	vuln_hosts_count="$(for i in ${nmap_temp}/*.nmap; do tac "$i" | sed -n -e '/|_.*CVE-\|VULNERABLE/,/^Nmap/p' | tac ; done | grep "Nmap" | sort -u | grep -c "Nmap")"
-	vuln_ports_count="$(for i in ${nmap_temp}/*.nmap; do tac "$i" | sed -n -e '/|_.*CVE-\|VULNERABLE/,/^Nmap/p' | tac ; done | grep -Eoc '(/udp.*open|/tcp.*open)')"
-	vuln_hosts="$(for i in ${nmap_temp}/*.nmap; do tac "$i" | sed -n -e '/|_.*CVE-\|VULNERABLE/,/^Nmap/p' | tac ; done)"
-	vuln_hosts_ip="$(for i in ${nmap_temp}/*.nmap; do tac "$i" | sed -n -e '/|_.*CVE-\|VULNERABLE/,/^Nmap/p' | tac ; done | grep ^"Nmap scan report for" | cut -d" " -f5 | sort -u)"
-	date="$(date +%F_%H-%M-%S)"
-
-	if [[ ${vuln_hosts_count} != "0" ]]; then
-		echo -e "${red_color}[X] ${vuln_hosts_count} vulnerable (or potentially vulnerable) host(s) found.${end_color}"
-		echo -e -n "${vuln_hosts_ip}\n" | while read line; do
-			host="$(dig -x "${line}" +short)"
-			echo "${line}" "${host}" >> vulnerable_hosts.txt
-		done
-	
-		vuln_hosts_format="$(awk '{print $1 "\t" $NF}' vulnerable_hosts.txt |  sed 's/3(NXDOMAIN)/\No reverse DNS entry found/' | sort -t . -n -k1,1 -k2,2 -k3,3 -k4,4 | sort -u)"
-		echo -e -n "\t----------------------------\n" > "${report_folder}vulnerable_hosts_details_${date}.txt"
-		echo -e -n "Report date: $(date)\n" >> "${report_folder}vulnerable_hosts_details_${date}.txt"
-		echo -e -n "Host(s) found: ${vuln_hosts_count}\n" >> "${report_folder}vulnerable_hosts_details_${date}.txt"
-		echo -e -n "Port(s) found: ${vuln_ports_count}\n" >> "${report_folder}vulnerable_hosts_details_${date}.txt"
-		echo -e -n "${vuln_hosts_format}\n" >> "${report_folder}vulnerable_hosts_details_${date}.txt"
-		echo -e -n "All the details below." >> "${report_folder}vulnerable_hosts_details_${date}.txt"
-		echo -e -n "\n\t----------------------------\n" >> "${report_folder}vulnerable_hosts_details_${date}.txt"
-		echo -e -n "${vuln_hosts}\n" >> "${report_folder}vulnerable_hosts_details_${date}.txt"
-	else
-		echo -e "${blue_color}No vulnerable host found... at first sight!.${end_color}"
-
-	fi
 
 elif [[ ${no_nmap_scan} == "on" ]] && [[ ${keep} == "on" ]]; then
 	echo -e "${yellow_color}[I] No Nmap scan to perform.${end_color}"
@@ -731,32 +601,24 @@ fi
 if [[ ${no_nmap_scan} != "on" ]]; then
 	nmap_bootstrap="./stylesheet/nmap-bootstrap.xsl"
 
-	echo -e "${blue_color}${bold_color}Do you want giving a specific name to your report(s)?${end_color}"
-	echo -e "${blue_color}${bold_color}[if not, just pressing \"Enter|Return\" key for a generic name]${end_color}"
-	read -p "Report(s) name? >> " -r -t 60 what_report_name
-		if [[ -z ${what_report_name} ]];then
-			global_report_name="global-report_"
-			vulnerable_report_name="vulnerable_hosts_details_"
-			else
-				global_report_name="${what_report_name}_"
-				vulnerable_report_name="${what_report_name}_vulnerable_hosts_"
-		fi
-
-	if [[ -s ${report_folder}vulnerable_hosts_details_${date}.txt ]] && [[ ${report_folder}vulnerable_hosts_details_${date}.txt != ${report_folder}${vulnerable_report_name}${date}.txt ]]; then
-		mv ${report_folder}vulnerable_hosts_details_${date}.txt ${report_folder}${vulnerable_report_name}${date}.txt
-		echo -e "${yellow_color}[I] All details on the vulnerabilities:"
-		echo -e "${blue_color}-> ${report_folder}${vulnerable_report_name}${date}.txt${end_color}"
-	elif [[ -s ${report_folder}vulnerable_hosts_details_${date}.txt ]] && [[ ${report_folder}vulnerable_hosts_details_${date}.txt == ${report_folder}${vulnerable_report_name}${date}.txt ]]; then
-		echo -e "${yellow_color}[I] All details on the vulnerabilities:"
-		echo -e "${blue_color}-> ${report_folder}vulnerable_hosts_details_${date}.txt${end_color}"
-	fi
+	global_report_name="global-report"
+	# vulnerable_report_name="vulnerable_hosts_details"
+	#
+	# if [[ -s ${report_folder}${date}_vulnerable_hosts_details.txt ]] && [[ ${report_folder}${date}_vulnerable_hosts_details.txt != ${report_folder}${date}_${vulnerable_report_name}.txt ]]; then
+	# 	mv ${report_folder}${date}_vulnerable_hosts_details.txt ${report_folder}${date}_${vulnerable_report_name}.txt
+	# 	echo -e "${yellow_color}[I] All details on the vulnerabilities:"
+	# 	echo -e "${blue_color}-> ${report_folder}${date}_${vulnerable_report_name}.txt${end_color}"
+	# elif [[ -s ${report_folder}${date}_vulnerable_hosts_details.txt ]] && [[ ${report_folder}${date}_vulnerable_hosts_details.txt == ${report_folder}${date}_${vulnerable_report_name}.txt ]]; then
+	# 	echo -e "${yellow_color}[I] All details on the vulnerabilities:"
+	# 	echo -e "${blue_color}-> ${report_folder}${date}_vulnerable_hosts_details.txt${end_color}"
+	# fi
 
 	# Merging all the Nmap XML files to one big XML file
 	echo "<?xml version=\"1.0\"?>" > nmap-output.xml
 	echo "<!DOCTYPE nmaprun PUBLIC \"-//IDN nmap.org//DTD Nmap XML 1.04//EN\" \"https://svn.nmap.org/nmap/docs/nmap.dtd\">" >> nmap-output.xml
 	echo "<?xml-stylesheet href="https://svn.nmap.org/nmap/docs/nmap.xsl\" type="text/xsl\"?>" >> nmap-output.xml
 	echo "<!-- nmap results file generated by MassVulScan.sh -->" >> nmap-output.xml
-	echo "<nmaprun args=\"nmap --max-retries 2 --max-rtt-timeout 500ms -p[port(s)] -Pn -s(T|U) -sV -n --script ${script} [ip(s)]\" scanner=\"Nmap\" start=\"\" version=\"${nmap_version}\" xmloutputversion=\"1.04\">" >> nmap-output.xml
+	echo "<nmaprun args=\"nmap --max-retries 2 --max-rtt-timeout 500ms -p[port(s)] -Pn -s(T|U) -sV -n [ip(s)]\" scanner=\"Nmap\" start=\"\" version=\"${nmap_version}\" xmloutputversion=\"1.04\">" >> nmap-output.xml
 	echo "<!--Generated by MassVulScan.sh--><verbose level=\"0\" /><debug level=\"0\" />" >> nmap-output.xml
 
 	for i in ${nmap_temp}/*.xml; do

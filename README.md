@@ -1,6 +1,10 @@
 # MassVulScan :alien:
 # Description
-Bash script which combines the power of the Masscan scanner to find open ports, the efficiency of the Nmap scanner to identify open services and their version, and finally the NSE vulners.nse script to identify potential vulnerabilities (CVEs). An HTML report will be generated containing the result of the analysis as well as a TXT file allowing to focus on the vulnerable hosts.
+This is a bash script which combines :
+- the power of the [Masscan](https://github.com/robertdavidgraham/masscan) scanner to find open ports,
+- the efficiency of the [Nmap](https://nmap.org) scanner to identify open services and their version
+
+An HTML report will be generated containing the result of the analysis, as well as a TXT file allowing to focus on the vulnerable hosts.
 
 ![Example Menu](screenshots/Menu_1-9-0.PNG)
 
@@ -8,7 +12,6 @@ Bash script which combines the power of the Masscan scanner to find open ports, 
 - Package xsltproc (for the conversion of an XML file to HTML, for the final report)
 - Masscan, version >= 1.0.5 (https://github.com/robertdavidgraham/masscan)
 - Nmap (https://nmap.org)
-- NSE script vulners.nse (https://github.com/vulnersCom/nmap-vulners)
 
 **I invite you to read the file "requirements.txt" if you have difficulties. It will tell you how to install each of the prerequisites.**
 
@@ -19,12 +22,13 @@ This feature has been validated on the following 64bit OS (2 core CPU and 2GB RA
 - LinuxMint 19.1
 - Ubuntu 19.04
 - Parrot 5.5.17 (HackTheBox / HTB)
+
 # How the script works?
 The main steps of the script:
 1) Express identification of hosts that are online (nmap)
 2) For each of these hosts, extremely fast identification of open TCP/UDP ports (masscan)
 3) The result (file) is sorted to gather all ports to be scanned by host
-4) Identification of services and vulnerabilities, multiple sessions (nmap + vulners.nse) in parallel, one session per host
+4) Identification of services (nmap), multiple sessions in parallel, one session per host
 5) Display of (potentially) vulnerable hosts on the screen at the end of the script
 6) Generation of two reports: a global HTML report will be created containing all the details for each of the hosts, vulnerable or not and a TXT file allowing to focus on hosts (potentially) vulnerable with the details
 
@@ -75,9 +79,8 @@ root@ubuntu:~/audit/MassVulScan# cat example/exclude.txt
 # Compatibility
 The script has only been tested on Debian family OS but should work on most Linux distributions (except for prerequisites installation). It can detect open ports on TCP and UDP protocols.
 # Notes / Tips
-Note that the advantage of using the NSE vulners.nse script is that it systematically polls the vulners.com site database, so it will be the latest available data. Similarly, the latter performs a ranking and sorting of identified CVEs, the most severe at the top of the list, which is very convenient.
 
-The script is also compatible with Nmap's categories (https://nmap.org/book/nse-usage.html#nse-categories) to search for more vulnerabilities (the better known as ms17-010, EternalBlue) in addition to the CVEs identified from vulners.com.
+The script is compatible with Nmap's categories (https://nmap.org/book/nse-usage.html#nse-categories) to search for more vulnerabilities (the better known as ms17-010, EternalBlue).
 
 Finally, with the "interactive mode" (-i) you have the possibility to type scripts args also, e.g. vulners --script-args mincvss=5
 # Known issues
