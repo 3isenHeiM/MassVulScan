@@ -34,13 +34,4 @@ updatedb
 Verification:
 nmap -V
 
--- Vulners.nse Nmap Script installation
 
-cd /tmp
-git clone https://github.com/vulnersCom/nmap-vulners
-cp nmap-vulners/vulners.nse /usr/local/share/nmap/scripts/
-updatedb
-nmap --script-updatedb
-
-Verification:
-nmap -sV --script vulners <target>
