@@ -29,8 +29,8 @@ blue_color="\033[0;36m"
 bold_color="\033[1m"
 end_color="\033[0m"
 source_installation="./sources/installation.sh"
-source_top_tcp="./sources/top-ports-tcp-1000.txt"
-source_top_udp="./sources/top-ports-udp-1000.txt"
+source_top_tcp="./sources/top-ports-tcp-100.txt"
+source_top_udp="./sources/top-ports-udp-100.txt"
 script_start="$SECONDS"
 report_folder="$(pwd)/reports/"
 date="$(date +%F_%H-%M-%S)"
@@ -158,8 +158,8 @@ usage(){
 	echo "                  2) Rate level (pkts/sec)"
 	echo "                  3) Nmap Scripting Engine (NSE) to use (default is vulners.nse)"
 	echo -e "${yellow_color}        -a | --all-ports${end_color}"
-	echo "          Scan all 65535 ports (TCP + UDP), the maximum rate is fix to 5K pkts/sec, and"
-	echo "          the NSE vulners.nse script is used."
+	echo "          Scan all 65535 ports (TCP + UDP), the maximum rate is fix to 5K pkts/sec."
+	echo -e "${end_color}"
 	echo -e "${yellow_color}        -c | --check${end_color}"
 	echo "          Perform a Nmap pre-scanning to identify online hosts and scan only them."
 	echo "          By default, all the IPs addresses will be tested, even if the host is unreachable."
@@ -355,9 +355,8 @@ fi
 
 hosts="${hosts_sorted}"
 
-# Interactive mode "on" or "off"?
-top_ports_tcp="$(grep -v ^"#" sources/top-ports-tcp-1000.txt)"
-top_ports_udp="$(grep -v ^"#" sources/top-ports-udp-1000.txt)"
+top_ports_tcp="$(grep -v ^"#" sources/top-ports-tcp-100.txt)"
+top_ports_udp="$(grep -v ^"#" sources/top-ports-udp-100.txt)"
 
 source_file_top
 ports="-p${top_ports_tcp},U:${top_ports_udp}"
