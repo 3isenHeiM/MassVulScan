@@ -31,6 +31,7 @@ end_color="\033[0m"
 source_installation="./sources/installation.sh"
 source_top_tcp="./sources/top-ports-tcp-100.txt"
 source_top_udp="./sources/top-ports-udp-100.txt"
+top_ports="100"
 script_start="$SECONDS"
 report_folder="$(pwd)/reports/"
 date="$(date +%F_%H-%M-%S)"
@@ -143,7 +144,7 @@ usage(){
 	echo "                  10.66.0.0/24"
 	echo "                  webmail.acme.corp"
 	echo -e "${end_color}"
-	echo -e "${bold_color}          By default: the top 100 TCP/UDP ports are scanned, the rate is fix to 2.5K pkts/sec."
+	echo -e "${bold_color}          By default: the top ${top_ports} TCP/UDP ports are scanned, the rate is fix to 2.5K pkts/sec."
 	echo -e "${end_color}"
 	echo -e "${bold_color}    * Optional parameters (must be used in addition of \"-f\" parameter):"
 	echo -e "${yellow_color}        -e | --exclude-file${end_color}"
@@ -348,13 +349,13 @@ fi
 
 hosts="${hosts_sorted}"
 
-top_ports_tcp="$(grep -v ^"#" sources/top-ports-tcp-100.txt)"
-top_ports_udp="$(grep -v ^"#" sources/top-ports-udp-100.txt)"
+top_ports_tcp="$(grep -v ^"#" ${source_top_tcp})"
+top_ports_udp="$(grep -v ^"#" ${source_top_tcp})"
 
 source_file_top
 ports="-p${top_ports_tcp},U:${top_ports_udp}"
 rate="2500"
-echo -e "${yellow_color}[I] Default parameters: --top-ports 100 (TCP/UDP) and --max-rate 2500.${end_color}"
+echo -e "${yellow_color}[I] Default parameters: --top-ports ${top_ports} (TCP/UDP) and --max-rate 2500.${end_color}"
 
 
 ################################################
