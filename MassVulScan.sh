@@ -152,11 +152,7 @@ usage(){
 	echo "                  # You can add a comment in the file"
 	echo "                  10.66.0.128/25"
 	echo "                  10.66.6.225"
-	echo -e "${yellow_color}        -i | --interactive${end_color}"
-	echo "          Interactive menu with extra parameters:"
-	echo "                  1) Ports to scan (e.g. -p1-65535 = all TCP ports)"
-	echo "                  2) Rate level (pkts/sec)"
-	echo "                  3) Nmap Scripting Engine (NSE) to use (default is vulners.nse)"
+	echo -e "${end_color}"
 	echo -e "${yellow_color}        -a | --all-ports${end_color}"
 	echo "          Scan all 65535 ports (TCP + UDP), the maximum rate is fix to 5K pkts/sec."
 	echo -e "${end_color}"
@@ -201,9 +197,6 @@ while [[ "$1" != "" ]]; do
                         shift
                         exclude_file="$1"
                         ;;
-                -i | --interactive )
-                        interactive="on"
-                       ;;
                 -a | --all-ports )
                         all_ports="on"
                        ;;
