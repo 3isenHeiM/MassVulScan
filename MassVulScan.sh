@@ -573,6 +573,28 @@ if [[ ${no_nmap_scan} != "on" ]]; then
 		echo -e "${blue_color}        -> ${report_folder}All_IPs_scanned_without_ports.txt${end_color}"
 	fi
 
+	function progress_bar {
+		# Get the line of the terminal length
+		linelength=$(tput cols)
+		let _barsize=($linelength-30) # 30 is approx the number of chars dispalyed
+		# Inspired from https://github.com/fearside/ProgressBar/
+		# Process data
+    let _progress=(${1}*100/${2}*100)/100	# _progress is the percentage
+    let _done=(${_progress}*${_barsize})/100
+    let _left=${_barsize}-$_done
+
+		# echo "${_progress} ${_done} ${_left}"
+		# Build progressbar string lengths
+    _fill=$(printf "%${_done}s")
+    _empty=$(printf "%${_left}s")
+
+		# 1.2 Build progressbar strings and print the ProgressBar line
+		# 1.2.1 Output example:
+		# 1.2.1.1 Progress : [########################################] 100%
+		echo -n -e "\r        Nmap scan ${1}/${2} |${_fill// /█}${_empty// / }| ${_progress}%"
+
+	}
+
 	# Function for parallel Nmap scans
 	parallels_scans(){
 		proto="$(echo "$1" | cut -d":" -f1)"
@@ -590,7 +612,9 @@ if [[ ${no_nmap_scan} != "on" ]]; then
 		nmap_proc_ended="$(grep "$Done" -co $file_nmap_process)"
 		percent="$(awk "BEGIN {printf \"%.2f\n\", "${nmap_proc_ended}/${nb_nmap_process}*100"}")"
 		echo -n -e "\r                                                                                                         "
-		echo -n -e "${yellow_color}${bold_color}\r[I] Scan is done for ${ip} (${proto}) -> ${nmap_proc_ended}/${nb_nmap_process} Nmap process launched...(${pourcentage}%)${end_color}"
+		echo -e "\r${yellow_color}${bold_color}$(date +"[%H:%M]") Scan is done for ${ip} (${proto})${end_color}"
+		progress_bar ${nmap_proc_ended} ${nb_nmap_process}
+		# echo -n -e "\r    --> ${nmap_proc_ended}/${nb_nmap_process} Nmap process launched...(${percent}%)}"
 	}
 
 	# Controlling the number of Nmap scanner to launch
