@@ -32,6 +32,7 @@ source_installation="./sources/installation.sh"
 source_top_tcp="./sources/top-ports-tcp-100.txt"
 source_top_udp="./sources/top-ports-udp-100.txt"
 top_ports="100"
+rate_def="2500"
 script_start="$SECONDS"
 report_folder="$(pwd)/reports/"
 date="$(date +%F_%H-%M-%S)"
@@ -56,10 +57,10 @@ file_nmap_process="MVS_process_nmap.txt"
 
 # Time elapsed
 time_elapsed(){
-script_end="$SECONDS"
-script_duration="$((script_end-script_start))"
+	script_end="$SECONDS"
+	script_duration="$((script_end-script_start))"
 
-printf 'Duration: %02dh:%02dm:%02ds\n' $((${script_duration}/3600)) $((${script_duration}%3600/60)) $((${script_duration}%60))
+	printf 'Duration: %02dh:%02dm:%02ds\n' $((${script_duration}/3600)) $((${script_duration}%3600/60)) $((${script_duration}%60))
 }
 
 # Logo
@@ -88,7 +89,7 @@ usage(){
 	echo "                  10.66.0.0/24"
 	echo "                  webmail.acme.corp"
 	echo -e "${end_color}"
-	echo -e "${bold_color}          By default, the top ${top_ports} TCP/UDP ports are scanned, the rate is fix to 2.5K pkts/sec."
+	echo -e "${bold_color}          By default, the top ${top_ports} TCP/UDP ports are scanned."
 	echo -e "${end_color}"
 	echo -e "${bold_color}    * Optional parameters (must be used in addition of \"-f\" parameter):"
 	echo -e "${yellow_color}        -e | --exclude-file${end_color}"
@@ -99,7 +100,10 @@ usage(){
 	echo "                  10.66.6.225"
 	echo -e "${end_color}"
 	echo -e "${yellow_color}        -a | --all-ports${end_color}"
-	echo "          Scan all 65535 ports (TCP + UDP), the maximum rate is fix to 5K pkts/sec."
+	echo "          Scan all 65535 ports (TCP + UDP)."
+	echo -e "${end_color}"
+	echo -e "${yellow_color}        -r | --rate${end_color}"
+	echo "          Specify the max packet rate, in packets/sec. Default to ${rate_def} pkts/sec."
 	echo -e "${end_color}"
 	echo -e "${yellow_color}        -c | --check${end_color}"
 	echo "          Perform a Nmap pre-scanning to identify online hosts and scan only them."
@@ -189,6 +193,8 @@ else
 	fi
 fi
 
+# Set default rate in case none is provided
+rate=$rate_def
 hosts="$1"
 exclude_file=""
 check="off"
@@ -205,17 +211,21 @@ fi
 while [[ "$1" != "" ]]; do
         case "$1" in
                 -f | --include-file )
-                        shift
+                        shift # to get the value of the argument
                         hosts="$1"
                         ;;
                 -e | --exclude-file )
                         file_to_exclude="yes"
-                        shift
+												shift # to get the value of the argument
                         exclude_file="$1"
                         ;;
                 -a | --all-ports )
                         all_ports="on"
                        ;;
+							  -r | --rate )
+												shift # to get the value of the argument
+											 	rate="$1"
+												;;
                 -c | --check )
                         check="on"
                         ;;
@@ -239,6 +249,7 @@ while [[ "$1" != "" ]]; do
         esac
         shift
 done
+
 
 check_root
 
@@ -392,9 +403,8 @@ top_ports_udp="$(grep -v ^"#" ${source_top_tcp})"
 
 source_file_top
 ports="-p${top_ports_tcp},U:${top_ports_udp}"
-rate="2500"
 echo -e ""
-echo -e "${yellow_color}$(date +"[%H:%M]") Default parameters: --top-ports ${top_ports} (TCP/UDP) and --max-rate 2500.${end_color}"
+echo -e "${yellow_color}$(date +"[%H:%M]") Default parameters: --top-ports ${top_ports} (TCP/UDP) and --max-rate ${rate}.${end_color}"
 
 
 ################################################
@@ -647,7 +657,7 @@ if [[ ${no_nmap_scan} != "on" ]]; then
 
 	sleep 2 && tset
 
-	echo -e "\n${green_color}$(date +"[%H:%M]") Nmap phase is ended.${end_color}"
+	echo -e "${green_color}$(date +"[%H:%M]") Nmap phase is ended.${end_color}"
 
 elif [[ ${no_nmap_scan} == "on" ]] && [[ ${keep} == "on" ]]; then
 	echo -e "${yellow_color}$(date +"[%H:%M]") No Nmap scan to perform.${end_color}"
