@@ -12,7 +12,7 @@ This is a bash script which combines :
 
 An HTML report will be generated containing the result of the analysis, as well as a TXT file allowing to focus on the vulnerable hosts.
 
-![Example Menu](screenshots/Menu_1-9-0.PNG)
+![Example Menu](screenshots/help.png)
 
 # Prerequisites
 - Package ``xsltproc`` (for the conversion of an XML file to HTML, for the final report)
@@ -70,18 +70,10 @@ root@ubuntu:~/audit/MassVulScan# cat example/exclude.txt
 ```
 **Note that the script will detect along the way if you are using multiple network interfaces.** This is important for Masscan, which will always default to the interface that has the default route. You will be asked to choose one (no problem with Nmap).
 
-# GIF Demo
-![Example Demo](demo/MassVulScan_Demo.gif)
-# Some screenshots
-![Example Masscan](screenshots/Masscan.PNG)
+# Demo
+[![asciicast](https://asciinema.org/a/SyGeaJ6s0ep1ncCh8171h4CaK.svg)](https://asciinema.org/a/SyGeaJ6s0ep1ncCh8171h4CaK)
 
-![Example Nmap](screenshots/Nmap.PNG)
 
-![Example EOF](screenshots/End-of-script.PNG)
-
-![Example Vulnerable-hosts](screenshots/Ex-vulnerable-host-found.PNG)
-
-![Example HTML](screenshots/HTML.PNG)
 # Compatibility
 The script has only been tested on Debian family OS but should work on most Linux distributions (except for prerequisites installation). It can detect open ports on TCP and UDP protocols.
 # Notes / Tips
@@ -98,11 +90,9 @@ nmap --top-ports <TOP> localhost -v -oG - | grep TCP | cut -d ";" -f 2 | cut -d 
 
 Then, modify the variable `source_top_tcp` in the script (line 32).
 
-# Known issues
-Concerning SNMP, sometimes UDP port scan doesn't seems correctly working with masscan program. I'm trying to find a solution.
-# TODO
-Manage better multiple IP addresses on one network interface.
+# Screenshots
+## Run
+![Run](screenshots/run.png)
 
-Improve process of installation (install what is strictly necessary, comparison of versions).
-
-Include netcat packages.
+## HTML report
+![Example HTML](screenshots/html.png)
