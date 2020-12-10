@@ -64,19 +64,13 @@ printf 'Duration: %02dh:%02dm:%02ds\n' $((${script_duration}/3600)) $((${script_
 
 # Logo
 banner(){
-	if [[ $(which figlet) ]]; then
-		my_logo="$(figlet -w 50 -c -f maxiwi MassVulScan)"
-		echo -e "${end_color}"
-		echo -e "${red_color}${my_logo}${end_color}"
-	else
-		echo -e "${end_color}"
-		echo -e "${red_color}  █   █                 █ █            ███                "
-		echo -e "${red_color}  ██ ██  ███  ███  ███  █ █  █ █  █    █    ███  ███  ███ "
-		echo -e "${red_color}  █ █ █    █  █    █    █ █  █ █  █     █   █      █  █ █ "
-		echo -e "${red_color}  █   █  ███    █    █  █ █  █ █  █      █  █    ███  █ █ "
-		echo -e "${red_color}  █   █  ███  ███  ███   █   ███  ███  ███  ███  ███  █ █ "
-		echo -e "${end_color}"
-	fi
+	echo -e "${end_color}"
+	echo -e "${red_color}  █   █                 █ █            ███                "
+	echo -e "${red_color}  ██ ██  ███  ███  ███  █ █  █ █  █    █    ███  ███  ███ "
+	echo -e "${red_color}  █ █ █    █  █    █    █ █  █ █  █     █   █      █  █ █ "
+	echo -e "${red_color}  █   █  ███    █    █  █ █  █ █  █      █  █    ███  █ █ "
+	echo -e "${red_color}  █   █  ███  ███  ███   █   ███  ███  ███  ███  ███  █ █ "
+	echo -e "${end_color}"
 	echo -e "${yellow_color}                                        Version ${version}"
 
 }
@@ -377,7 +371,7 @@ if [[ -s $file_unsorted_IP ]]; then
 	cut -d" " -f1 $file_unsorted_IP | sort -u | sort -t . -n -k1,1 -k2,2 -k3,3 -k4,4 > ${hosts_sorted}
 else
 	# No hostnames, we can directly use the input file
-	cut -d" " -f1 ${hosts} | sort -u | sort -t . -n -k1,1 -k2,2 -k3,3 -k4,4 > ${hosts_sorted}
+	grep -v "^#" ${hosts} | cut -d" " -f1 | sort -u | sort -t . -n -k1,1 -k2,2 -k3,3 -k4,4 > ${hosts_sorted}
 fi
 
 echo -e " done."
