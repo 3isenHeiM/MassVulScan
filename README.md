@@ -85,8 +85,18 @@ root@ubuntu:~/audit/MassVulScan# cat example/exclude.txt
 # Compatibility
 The script has only been tested on Debian family OS but should work on most Linux distributions (except for prerequisites installation). It can detect open ports on TCP and UDP protocols.
 # Notes / Tips
-
+## Nmap Categories
 The script is compatible with Nmap's categories (https://nmap.org/book/nse-usage.html#nse-categories) to search for more vulnerabilities (the better known as ms17-010, EternalBlue).
+
+## Built Nmap top ports
+This command will output a list of the top ``<TOP>`` most used TCP ports. Replace the ``<TOP>``
+with the number you want.
+```
+echo "# https://github.com/3isenHeiM/MassVulScan" > ./sources/custom_ports.txt
+nmap --top-ports <TOP> localhost -v -oG - | grep TCP | cut -d ";" -f 2 | cut -d ")" -f 1 >> ./sources/custom_ports.txt
+```
+
+Then, modify the variable `source_top_tcp` in the script (line 32).
 
 # Known issues
 Concerning SNMP, sometimes UDP port scan doesn't seems correctly working with masscan program. I'm trying to find a solution.
