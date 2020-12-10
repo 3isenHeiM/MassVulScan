@@ -383,7 +383,6 @@ fi
 echo -e " done."
 
 
-
 echo -e "${red_color}${bold_color}$(date +"[%H:%M]") Here are the IPs that will be scanned.${end_color}"
 if [[ ${exclude_file} != "" ]] ; then
 	echo -e "    Don't worry, the exlude_file will be taken into account when giving these to masscan and nmap !"
