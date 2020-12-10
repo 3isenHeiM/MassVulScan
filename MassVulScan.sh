@@ -576,7 +576,7 @@ if [[ ${no_nmap_scan} != "on" ]]; then
 	function progress_bar {
 		# Get the line of the terminal length
 		linelength=$(tput cols)
-		let _barsize=($linelength-30) # 30 is approx the number of chars dispalyed
+		let _barsize=($linelength-35) # 30 is approx the number of chars dispalyed
 		# Inspired from https://github.com/fearside/ProgressBar/
 		# Process data
     let _progress=(${1}*100/${2}*100)/100	# _progress is the percentage
@@ -611,10 +611,14 @@ if [[ ${no_nmap_scan} != "on" ]]; then
 
 		nmap_proc_ended="$(grep "$Done" -co $file_nmap_process)"
 		percent="$(awk "BEGIN {printf \"%.2f\n\", "${nmap_proc_ended}/${nb_nmap_process}*100"}")"
-		echo -n -e "\r                                                                                                         "
+		# Clear the line
+		linelength=$(tput cols)
+	  _fill=$(printf "%${linelength}s")
+		echo -n -e "\r${_fill// / }"
+		# Add the new line
 		echo -e "\r${yellow_color}${bold_color}$(date +"[%H:%M]") Scan is done for ${ip} (${proto})${end_color}"
+		# Print current progress par
 		progress_bar ${nmap_proc_ended} ${nb_nmap_process}
-		# echo -n -e "\r    --> ${nmap_proc_ended}/${nb_nmap_process} Nmap process launched...(${percent}%)}"
 	}
 
 	# Controlling the number of Nmap scanner to launch
