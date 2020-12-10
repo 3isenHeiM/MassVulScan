@@ -719,7 +719,7 @@ else
 fi
 
 # Remove old files
-#rm -rf MVS_* "${nmap_temp}" /tmp/nmap_temp-* 2>/dev/null
+rm -rf MVS_* "${nmap_temp}" "${hosts_sorted}" /tmp/nmap_temp-* 2>/dev/null
 
 
 time_elapsed
