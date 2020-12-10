@@ -1,6 +1,6 @@
 # MassVulScan :alien:
 
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/3isenHeiM/MassVulScan)](https://github.com/3isenHeiM/MassVulScan/releases/latest) [![GitHub last commit (branch)](https://img.shields.io/github/last-commit/3isenHeiM/MassVulScan/master)](https://github.com/3isenHeiM/MassVulScan/commits) [![GitHub stars](https://img.shields.io/github/stars/3isenHeiM/MassVulScan)](https://github.com/3isenHeiM/MassVulScan/stargazers) [![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/3isenHeiM/MassVulScan)]()
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/3isenHeiM/MassVulScan)](https://github.com/3isenHeiM/MassVulScan/releases/latest) [![GitHub last commit (branch)](https://img.shields.io/github/last-commit/3isenHeiM/MassVulScan/master)](https://github.com/3isenHeiM/MassVulScan/commits) [![GitHub stars](https://img.shields.io/github/stars/3isenHeiM/MassVulScan)](https://github.com/3isenHeiM/MassVulScan/stargazers)
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/3isenHeiM?style=social)](https://twitter.com/3isenHeiM)
 
@@ -15,28 +15,22 @@ An HTML report will be generated containing the result of the analysis, as well 
 ![Example Menu](screenshots/Menu_1-9-0.PNG)
 
 # Prerequisites
-- Package xsltproc (for the conversion of an XML file to HTML, for the final report)
+- Package ``xsltproc`` (for the conversion of an XML file to HTML, for the final report)
 - Masscan, version >= 1.0.5 (https://github.com/robertdavidgraham/masscan)
 - Nmap (https://nmap.org)
 
 **I invite you to read the file "requirements.txt" if you have difficulties. It will tell you how to install each of the prerequisites.**
 
-A new feature in version v1.7 of the script will install for you all the prerequisites necessary for the script. Only Debian OS family is currently compatible.
-This feature has been validated on the following 64bit OS (2 core CPU and 2GB RAM ~10 minutes):
-- Debian 10.0
-- Elementary 5.0
-- LinuxMint 19.1
-- Ubuntu 19.04
-- Parrot 5.5.17 (HackTheBox / HTB)
+The script can install for you all the necessary prerequisites (Debian OS family only).
+
 
 # How the script works?
 The main steps of the script:
-1) Express identification of hosts that are online (nmap)
+1) Express identification of hosts that are online (nmap) (optional)
 2) For each of these hosts, extremely fast identification of open TCP/UDP ports (masscan)
-3) The result (file) is sorted to gather all ports to be scanned by host
+3) The result is sorted to gather all ports to be scanned by host
 4) Identification of services (nmap), multiple sessions in parallel, one session per host
-5) Display of (potentially) vulnerable hosts on the screen at the end of the script
-6) Generation of two reports:
+5) Generation of two reports:
    - a global HTML report will be created containing all the details for each of the hosts, vulnerable or not
    - a TXT file allowing to focus on hosts (potentially) vulnerable with the details
 
