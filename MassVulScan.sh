@@ -529,7 +529,7 @@ merge_ip_hostname(){
 
 # Hosts list scanned
 hosts_scanned(){
-	echo -e "${bold_color}Host(s) discovered with an open port(s):${end_color}"
+	echo -e "${yellow_color}${bold_color}$(date +"[%H:%M]") Host(s) discovered with an open port(s):${end_color}"
 	grep ^open $masscan_output | awk '{ip[$4]++} END{for (i in ip) {print "  " i " has " ip[i] " open port(s)"}}' | sort -t . -n -k1,1 -k2,2 -k3,3 -k4,4
 }
 
@@ -655,7 +655,6 @@ if [[ ${no_nmap_scan} != "on" ]]; then
 	sleep 2 && tset
 
 	echo -e "\n${green_color}$(date +"[%H:%M]") Nmap phase is ended.${end_color}"
-
 
 elif [[ ${no_nmap_scan} == "on" ]] && [[ ${keep} == "on" ]]; then
 	echo -e "${yellow_color}$(date +"[%H:%M]") No Nmap scan to perform.${end_color}"
