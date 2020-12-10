@@ -1,4 +1,9 @@
 # MassVulScan :alien:
+
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/3isenHeiM/MassVulScan) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/3isenHeiM/MassVulScan/master) [![GitHub stars](https://img.shields.io/github/stars/3isenHeiM/MassVulScan)](https://github.com/3isenHeiM/MassVulScan/stargazers) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/3isenHeiM/MassVulScan)
+
+![Twitter Follow](https://img.shields.io/twitter/follow/3isenHeiM?style=social)
+
 # Description
 This is a bash script which combines :
 - the power of the [Masscan](https://github.com/robertdavidgraham/masscan) scanner to find open ports,
