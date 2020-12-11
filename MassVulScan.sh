@@ -2,6 +2,8 @@
 
 #    This file is part of MassVulScan.
 #
+#    Copyright (C) 2020 3isenHeiM
+#
 #    MassVulScan is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
@@ -89,7 +91,12 @@ banner(){
 	echo -e "${red_color}  █   █  ███  ███  ███   █   ███  ███  ███  ███  ███  █ █ "
 	echo -e "${end_color}"
 	echo -e "${yellow_color}                                        Version ${version}"
-
+	echo -e "${end_color}"
+	echo -e "MassVulScan  Copyright (C) 2020 3isenHeiM"
+	echo -e "This program comes with ABSOLUTELY NO WARRANTY; for details type `show w`."
+	echo -e "This is free software, and you are welcome to redistribute it"
+	echo -e "under certain conditions; type `show c` for details."
+	echo -e "${end_color}"
 }
 
 # Usage of script
